@@ -11,7 +11,7 @@ int main()
     source = open("sample.txt", O_RDONLY);
 
     if (source < 0)
-    {
+    { 
         printf("Error opening source file.\n");
         return 1;
     }
