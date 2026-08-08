@@ -1,0 +1,40 @@
+#include <stdio.h>
+#include <unistd.h>
+#include <sys/types.h>
+#include <sys/wait.h>
+
+int main()
+{
+    pid_t pid;
+
+    pid = fork();
+
+    if (pid < 0)
+    {
+        printf("Fork failed\n");
+        return 1;
+    }
+
+    if (pid > 0)
+    {
+        printf("\n----- PARENT PROCESS -----\n");
+        printf("Parent PID : %d\n", getpid());
+        printf("Child PID  : %d\n", pid);
+
+        wait(NULL);
+
+        printf("Parent Process Ending\n");
+    }
+    else
+    {
+        printf("\n----- CHILD PROCESS -----\n");
+        printf("Child PID  : %d\n", getpid());
+        printf("Parent PID : %d\n", getppid());
+
+        sleep(60);
+
+        printf("Child Process Ending\n");
+    }
+
+    return 0;
+}
