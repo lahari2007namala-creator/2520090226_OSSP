@@ -1,1 +1,241 @@
+Code 1 — Basic Hello Linux Program
+
+#include <stdio.h>
+
+int main()
+{
+    printf("Hello Linux!\n");
+    return 0;
+}
+
+Code 2 — fork() Parent and Child Process
+
+#include <stdio.h>
+#include <unistd.h>
+#include <sys/types.h>
+
+int main()
+{
+    pid_t pid;
+
+    printf("Before fork: PID = %d\n", getpid());
+
+    pid = fork();
+
+    if (pid < 0)
+    {
+        printf("Fork failed\n");
+    }
+    else if (pid == 0)
+    {
+        printf("Child Process\n");
+        printf("Child PID = %d\n", getpid());
+        printf("Parent PID = %d\n", getppid());
+    }
+    else
+    {
+        printf("Parent Process\n");
+        printf("Parent PID = %d\n", getpid());
+        printf("Child PID = %d\n", pid);
+    }
+
+    return 0;
+}
+
+Code 3 — Multiple fork() Program
+
+#include <stdio.h>
+#include <unistd.h>
+
+int main()
+{
+    printf("Original Process PID = %d\n", getpid());
+
+    fork();
+    fork();
+
+    printf("PID = %d, PPID = %d\n", getpid(), getppid());
+
+    return 0;
+}
+
+Code 4 — execl() Program
+
+#include <stdio.h>
+#include <unistd.h>
+
+int main()
+{
+    printf("Before execl\n");
+
+    execl("/bin/ls", "ls", "-l", NULL);
+
+    printf("This line executes only if execl fails\n");
+
+    return 0;
+}
+
+Code 5 — execvp() Program
+
+#include <stdio.h>
+#include <unistd.h>
+
+int main()
+{
+    char *args[] = {"ls", "-l", NULL};
+
+    printf("Before execvp\n");
+
+    execvp("ls", args);
+
+    printf("execvp failed\n");
+
+    return 0;
+}
+
+Code 6 — execv() Program
+
+#include <stdio.h>
+#include <unistd.h>
+
+int main()
+{
+    char *args[] = {"ls", "-l", NULL};
+
+    printf("Before execv\n");
+
+    execv("/bin/ls", args);
+
+    printf("execv failed\n");
+
+    return 0;
+}
+
+Code 7 — wait() Program
+
+#include <stdio.h>
+#include <unistd.h>
+#include <sys/wait.h>
+
+int main()
+{
+    pid_t pid = fork();
+
+    if (pid == 0)
+    {
+        printf("Child started. PID = %d\n", getpid());
+        sleep(2);
+        printf("Child completed.\n");
+    }
+    else
+    {
+        printf("Parent waiting for child...\n");
+
+        wait(NULL);
+
+        printf("Child finished. Parent continuing.\n");
+    }
+
+    return 0;
+}
+
+Code 8 — waitpid() Program
+
+#include <stdio.h>
+#include <unistd.h>
+#include <sys/wait.h>
+
+int main()
+{
+    pid_t pid = fork();
+
+    if (pid == 0)
+    {
+        printf("Child PID = %d\n", getpid());
+        sleep(2);
+        printf("Child completed\n");
+    }
+    else
+    {
+        printf("Parent PID = %d\n", getpid());
+        printf("Parent waiting for child %d...\n", pid);
+
+        waitpid(pid, NULL, 0);
+
+        printf("Child %d completed. Parent continuing.\n", pid);
+    }
+
+    return 0;
+}
+
+Code 9 — Process Tree Program
+
+#include <stdio.h>
+#include <unistd.h>
+
+int main()
+{
+    fork();
+    fork();
+
+    printf("PID = %d, PPID = %d\n", getpid(), getppid());
+
+    sleep(30);
+
+    return 0;
+}
+
+Code 10 — Mini Shell Program
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
+#include <string.h>
+#include <sys/wait.h>
+
+int main()
+{
+    char command[100];
+
+    while (1)
+    {
+        printf("MiniShell> ");
+        fflush(stdout);
+
+        if (fgets(command, sizeof(command), stdin) == NULL)
+            break;
+
+        command[strcspn(command, "\n")] = '\0';
+
+        if (strcmp(command, "exit") == 0)
+            break;
+
+        pid_t pid = fork();
+
+        if (pid < 0)
+        {
+            perror("fork");
+            return 1;
+        }
+        else if (pid == 0)
+        {
+            printf("Child PID = %d\n", getpid());
+
+            execlp(command, command, NULL);
+
+            perror("exec");
+            exit(1);
+        }
+        else
+        {
+            printf("Parent PID = %d\n", getpid());
+
+            wait(NULL);
+
+            printf("Command completed.\n");
+        }
+    }
+
+    return 0;
+}
 
