@@ -1,0 +1,124 @@
+1.#include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
+#include <sys/wait.h>
+
+int main()
+{
+    pid_t pid1, pid2, pid3;
+
+    pid1 = fork();
+
+    if (pid1 == 0)
+    {
+        printf("Child 1 started, PID = %d\n", getpid());
+        sleep(2);
+        printf("Child 1 completed\n");
+        exit(0);
+    }
+
+    pid2 = fork();
+
+    if (pid2 == 0)
+    {
+        printf("Child 2 started, PID = %d\n", getpid());
+        sleep(3);
+        printf("Child 2 completed\n");
+        exit(0);
+    }
+
+    pid3 = fork();
+
+    if (pid3 == 0)
+    {
+        printf("Child 3 started, PID = %d\n", getpid());
+        sleep(1);
+        printf("Child 3 completed\n");
+        exit(0);
+    }
+
+    printf("Parent process PID = %d\n", getpid());
+
+    /* wait() waits for any child */
+    pid_t completed = wait(NULL);
+    printf("wait() collected child PID = %d\n", completed);
+
+    /* waitpid() waits for a specific child */
+    waitpid(pid1, NULL, 0);
+    printf("waitpid() collected Child 1 PID = %d\n", pid1);
+
+    waitpid(pid2, NULL, 0);
+    printf("waitpid() collected Child 2 PID = %d\n", pid2);
+
+    printf("All children completed\n");
+
+    return 0;
+}
+
+2.#include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
+
+int main()
+{
+    pid_t pid = fork();
+
+    if (pid < 0)
+    {
+        perror("fork");
+        exit(1);
+    }
+
+    if (pid == 0)
+    {
+        printf("Child PID = %d\n", getpid());
+        printf("Child is exiting now...\n");
+        exit(0);
+    }
+    else
+    {
+        printf("Parent PID = %d\n", getpid());
+        printf("Parent sleeping for 30 seconds...\n");
+
+        sleep(30);
+
+        printf("Parent exiting...\n");
+    }
+
+    return 0;
+}
+
+3.#include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
+#include <sys/wait.h>
+
+int main()
+{
+    pid_t pid = fork();
+
+    if (pid < 0)
+    {
+        perror("fork");
+        exit(1);
+    }
+
+    if (pid == 0)
+    {
+        printf("Child PID = %d\n", getpid());
+        printf("Child is exiting...\n");
+        exit(0);
+    }
+    else
+    {
+        printf("Parent PID = %d\n", getpid());
+        printf("Parent waiting for child...\n");
+
+        wait(NULL);
+
+        printf("Child collected successfully.\n");
+        printf("Zombie process eliminated.\n");
+    }
+
+    return 0;
+}
