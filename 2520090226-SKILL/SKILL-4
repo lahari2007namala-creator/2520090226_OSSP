@@ -1,0 +1,202 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <ctype.h>
+
+#define MAX_TOKENS 50
+#define MAX_LEN 100
+
+struct Token {
+    char value[MAX_LEN];
+};
+
+struct Node {
+    char value[MAX_LEN];
+    struct Node *left;
+    struct Node *right;
+};
+
+int isDelimiter(char ch) {
+    return ch == '|' || ch == ';';
+}
+
+int tokenize(const char *input, struct Token tokens[]) {
+    int count = 0;
+    int i = 0;
+
+    while (input[i] != '\0' && count < MAX_TOKENS) {
+        while (input[i] != '\0' &&
+               isspace((unsigned char)input[i])) {
+            i++;
+        }
+
+        if (input[i] == '\0') {
+            break;
+        }
+
+        if (isDelimiter(input[i])) {
+            tokens[count].value[0] = input[i];
+            tokens[count].value[1] = '\0';
+            count++;
+            i++;
+            continue;
+        }
+
+        int j = 0;
+
+        while (input[i] != '\0' &&
+               !isspace((unsigned char)input[i]) &&
+               !isDelimiter(input[i])) {
+            if (j < MAX_LEN - 1) {
+                tokens[count].value[j++] = input[i];
+            }
+            i++;
+        }
+
+        tokens[count].value[j] = '\0';
+        count++;
+    }
+
+    return count;
+}
+
+int validateTokens(struct Token tokens[], int count) {
+    if (count == 0) {
+        printf("Empty command detected.\n");
+        return 0;
+    }
+
+    if (strcmp(tokens[0].value, "|") == 0) {
+        printf("Syntax Error: Command cannot start with '|'.\n");
+        return 0;
+    }
+
+    if (strcmp(tokens[count - 1].value, "|") == 0) {
+        printf("Syntax Error: Command cannot end with '|'.\n");
+        return 0;
+    }
+
+    for (int i = 0; i < count - 1; i++) {
+        if (strcmp(tokens[i].value, "|") == 0 &&
+            strcmp(tokens[i + 1].value, "|") == 0) {
+            printf("Syntax Error: Two '|' symbols cannot be consecutive.\n");
+            return 0;
+        }
+    }
+
+    return 1;
+}
+
+struct Node *createNode(const char *value) {
+    struct Node *newNode = malloc(sizeof(struct Node));
+
+    if (newNode == NULL) {
+        printf("Memory allocation failed.\n");
+        exit(1);
+    }
+
+    strcpy(newNode->value, value);
+    newNode->left = NULL;
+    newNode->right = NULL;
+
+    return newNode;
+}
+
+struct Node *buildTree(struct Token tokens[], int count) {
+    struct Node *root = createNode(tokens[0].value);
+    struct Node *current = root;
+
+    for (int i = 1; i < count; i++) {
+        if (strcmp(tokens[i].value, "|") == 0) {
+            current->right = createNode("|");
+            current = current->right;
+        } else {
+            if (current->left == NULL) {
+                current->left = createNode(tokens[i].value);
+            } else {
+                current->right = createNode(tokens[i].value);
+                current = current->right;
+            }
+        }
+    }
+
+    return root;
+}
+
+void displayTree(struct Node *root, int level) {
+    if (root == NULL) {
+        return;
+    }
+
+    for (int i = 0; i < level; i++) {
+        printf("    ");
+    }
+
+    printf("|-- %s\n", root->value);
+
+    displayTree(root->left, level + 1);
+    displayTree(root->right, level + 1);
+}
+
+void freeTree(struct Node *root) {
+    if (root == NULL) {
+        return;
+    }
+
+    freeTree(root->left);
+    freeTree(root->right);
+    free(root);
+}
+
+int main(void) {
+    char input[500];
+    struct Token tokens[MAX_TOKENS];
+
+    printf("================================\n");
+    printf("    TOKENIZER AND PARSER DEMO\n");
+    printf("================================\n");
+
+    printf("\nEnter a command: ");
+
+    if (fgets(input, sizeof(input), stdin) == NULL) {
+        printf("Input error.\n");
+        return 1;
+    }
+
+    input[strcspn(input, "\n")] = '\0';
+
+    int count = tokenize(input, tokens);
+
+    printf("\n--- Tokens ---\n");
+
+    if (count == 0) {
+        printf("No tokens found.\n");
+        return 0;
+    }
+
+    for (int i = 0; i < count; i++) {
+        printf("Token %d: [%s]\n", i + 1, tokens[i].value);
+    }
+
+    printf("\n--- Token Validation ---\n");
+
+    if (!validateTokens(tokens, count)) {
+        printf("Invalid token stream.\n");
+        return 1;
+    }
+
+    printf("Token stream is valid.\n");
+
+    printf("\n--- Parse Tree ---\n");
+
+    struct Node *root = buildTree(tokens, count);
+    displayTree(root, 0);
+
+    printf("\nExecution structure created successfully.\n");
+
+    freeTree(root);
+
+    printf("Memory released successfully.\n");
+
+    return 0;
+}
