@@ -1,0 +1,113 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+#define INITIAL_SIZE 10
+
+struct Node {
+    int data;
+    struct Node *next;
+};
+
+void escapeSequenceDemo(void) {
+    printf("\n--- Escape Sequence Demo ---\n");
+    printf("Hello\tWorld\n");
+    printf("Line 1\nLine 2\n");
+    printf("Quotation: \"Hello\"\n");
+    printf("Backslash: \\\n");
+}
+
+char *readInput(void) {
+    int size = INITIAL_SIZE;
+    int length = 0;
+
+    char *buffer = malloc(size * sizeof(char));
+
+    if (buffer == NULL) {
+        printf("Memory allocation failed!\n");
+        exit(1);
+    }
+
+    int ch;
+
+    while ((ch = getchar()) != '\n' && ch != EOF) {
+        if (length >= size - 1) {
+            size *= 2;
+
+            char *temp = realloc(buffer, size * sizeof(char));
+
+            if (temp == NULL) {
+                free(buffer);
+                printf("Memory reallocation failed!\n");
+                exit(1);
+            }
+
+            buffer = temp;
+        }
+
+        buffer[length++] = (char)ch;
+    }
+
+    buffer[length] = '\0';
+
+    return buffer;
+}
+
+void linkedListDemo(void) {
+    struct Node *head = malloc(sizeof(struct Node));
+    struct Node *second = malloc(sizeof(struct Node));
+    struct Node *third = malloc(sizeof(struct Node));
+
+    if (head == NULL || second == NULL || third == NULL) {
+        printf("Memory allocation failed!\n");
+
+        free(head);
+        free(second);
+        free(third);
+
+        return;
+    }
+
+    head->data = 10;
+    head->next = second;
+
+    second->data = 20;
+    second->next = third;
+
+    third->data = 30;
+    third->next = NULL;
+
+    printf("\n--- Linked List ---\n");
+
+    struct Node *current = head;
+
+    while (current != NULL) {
+        printf("%d -> ", current->data);
+        current = current->next;
+    }
+
+    printf("NULL\n");
+
+    free(head);
+    free(second);
+    free(third);
+}
+
+int main(void) {
+    printf("\nINPUT BUFFER AND MEMORY DEMO\n");
+
+    escapeSequenceDemo();
+
+    printf("\nEnter a command/text: ");
+
+    char *input = readInput();
+
+    printf("\nYou entered: %s\n", input);
+
+    free(input);
+
+    linkedListDemo();
+
+    printf("\nProgram completed successfully.\n");
+
+    return 0;
+}
