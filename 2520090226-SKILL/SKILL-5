@@ -1,0 +1,35 @@
+#!/bin/bash
+
+name="Lahari"
+course="Operating Systems"
+literal='$USER is stored literally'
+
+echo "----- SINGLE QUOTES -----"
+echo '$HOME'
+echo '$USER'
+echo 'Today is $(date)'
+echo "$literal"
+
+echo
+echo "----- DOUBLE QUOTES -----"
+echo "Student: $name"
+echo "Course: $course"
+echo "User: $USER"
+echo "Home: $HOME"
+echo "Date: $(date)"
+
+echo
+echo "----- SPACE PRESERVATION -----"
+text="Linux     Shell     Scripting"
+echo "$text"
+
+echo
+echo "----- NESTED QUOTES -----"
+echo "Student '$name' is studying \"$course\""
+
+echo
+echo "----- EDGE CASES -----"
+empty=""
+echo "Empty value: [$empty]"
+echo 'Literal empty variable: [$empty]'
+echo "Wildcard literal: *.txt"
